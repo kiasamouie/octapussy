@@ -1,17 +1,16 @@
-# Use the official Ollama image as the base
 FROM ollama/ollama
-
-# Set the working directory
 WORKDIR /root
 
-# Install curl and netcat (nc) for readiness check
-RUN apt-get update && apt-get install -y curl netcat-openbsd && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    curl \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the entrypoint script
-COPY entrypoint.sh /root/entrypoint.sh
-
-# Give execute permissions to the script
-RUN chmod +x /root/entrypoint.sh
-
-# Ensure the script is executed properly
-ENTRYPOINT ["/bin/sh", "/root/entrypoint.sh"]
+# Disable ollama’s default entrypoint and use our script
+ENTRYPOINT ["/bin/sh", "-c", "\
+  if command -v nvidia-smi >/dev/null 2>&1; then nvidia-smi; else echo 'Warning: NVIDIA GPU not detected'; fi && \
+  ollama serve & \
+  while ! nc -z localhost 11434; do sleep 1; done && \
+  ollama pull deepseek-r1:7b && \
+  wait \
+"]
