@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres:/docker-entrypoint-initdb.d
+      
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    env_file:
+      - .env
+
+  django:
+    build: ./django
+    container_name: django
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./django:/app
+    env_file:
+      - .env
+
+  ollama:
+    build: ./ollama
+    container_name: ollama
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    env_file:
+      - .env
+
+  ollama-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: ollama-webui
+    restart: unless-stopped
+    ports:
+      - "3001:8080"
+    volumes:
+      - webui_data:/app
+    depends_on:
+      - ollama
+    env_file:
+      - .env
+
+volumes:
+  pgdata:
+  n8n_data:
+  ollama:
+  webui_data:
