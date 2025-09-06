@@ -37,39 +37,39 @@ services:
     env_file:
       - .env
 
-  ollama:
-    build: ./ollama
-    container_name: ollama
-    restart: unless-stopped
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    volumes:
-      - ollama:/root/.ollama
-    ports:
-      - "11434:11434"
-    env_file:
-      - .env
+  # ollama:
+  #   build: ./ollama
+  #   container_name: ollama
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       reservations:
+  #         devices:
+  #           - driver: nvidia
+  #             count: all
+  #             capabilities: [gpu]
+  #   volumes:
+  #     - ollama:/root/.ollama
+  #   ports:
+  #     - "11434:11434"
+  #   env_file:
+  #     - .env
 
-  ollama-webui:
-    image: ghcr.io/open-webui/open-webui:main
-    container_name: ollama-webui
-    restart: unless-stopped
-    ports:
-      - "3001:8080"
-    volumes:
-      - webui_data:/app
-    depends_on:
-      - ollama
-    env_file:
-      - .env
+  # ollama-webui:
+  #   image: ghcr.io/open-webui/open-webui:main
+  #   container_name: ollama-webui
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3001:8080"
+  #   volumes:
+  #     - webui_data:/app
+  #   depends_on:
+  #     - ollama
+  #   env_file:
+  #     - .env
 
 volumes:
   pgdata:
   n8n_data:
-  ollama:
-  webui_data:
+  # ollama:
+  # webui_data:

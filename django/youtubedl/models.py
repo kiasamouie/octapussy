@@ -4,7 +4,7 @@ class Track(models.Model):
     title = models.CharField(max_length=255)
     s3_file_url = models.URLField(max_length=1024,blank=True,null=True)
     s3_file_key = models.CharField(max_length=1024,blank=True,null=True)
-    upload_id = models.CharField(max_length=255)
+    upload_id = models.CharField(max_length=255, unique=True)
     uploader = models.CharField(max_length=255)
     uploader_id = models.CharField(max_length=255)
     uploader_url = models.URLField(max_length=1024)
@@ -28,7 +28,7 @@ class Track(models.Model):
 
 class Playlist(models.Model):
     title = models.CharField(max_length=255)
-    upload_id = models.CharField(max_length=255)
+    upload_id = models.CharField(max_length=255, unique=True)
     extractor = models.CharField(max_length=50)
     extractor_key = models.CharField(max_length=50)
     webpage_url = models.URLField(max_length=1024)

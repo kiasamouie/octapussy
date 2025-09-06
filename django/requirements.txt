@@ -78,3 +78,6 @@ urllib3==1.26.20
 websockets==15.0.1
 youtube-dl==2021.12.17
 yt-dlp==2025.8.27
+gunicorn==23.0.0
+packaging==25.0
+pyperclip==1.9.0
