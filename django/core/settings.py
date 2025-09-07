@@ -52,6 +52,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework_simplejwt.token_blacklist",
     "django_extensions",
+    "django_celery_results",
+    "django_celery_beat",
     # created apps
     'core.apps.CoreConfig',
     "youtubedl",
@@ -241,3 +243,10 @@ LOGGING = {
         },
     },
 }
+
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"  # or "Europe/London"

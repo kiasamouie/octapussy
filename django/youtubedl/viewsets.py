@@ -17,7 +17,8 @@ from django.db import transaction
 
 from core.utils.ytdlp import YoutubeDLHelper
 from core.utils.socials.youtube import YouTubeAPI
-
+from core.models import TaskJob
+from .tasks import scrape_artist_task
 
 class YoutubeDLViewSet(viewsets.ViewSet):
     permission_classes = (AllowAny,)
@@ -38,21 +39,60 @@ class YoutubeDLViewSet(viewsets.ViewSet):
         except Exception:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(methods=["post"], detail=False)
+    def scrape(self, request):
+        try:
+            urls = request.data.get("urls") or request.data.get("url")
+            if not urls:
+                return Response(
+                    {"detail": "url or urls is required"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if not isinstance(urls, list):
+                urls = [urls]
+
+            jobs = []
+            for url in urls:
+                job = TaskJob.objects.create(
+                    name="scrape_artist_task",
+                    params={"url": url},
+                    status=TaskJob.Status.PENDING,
+                )
+                async_res = scrape_artist_task.delay(url=url, job_id=str(job.id))
+                job.task_id = async_res.id
+                job.save(update_fields=["task_id", "updated_at"])
+
+                jobs.append(
+                    {
+                        "job_id": str(job.id),
+                        "task_id": async_res.id,
+                        "status": job.status,
+                        "url": url,
+                    }
+                )
+
+            return Response(jobs, status=status.HTTP_202_ACCEPTED)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        
     @action(methods=['post'], detail=False)
     def download(self, request):
         try:
             # init test
-            # youtube_api = YouTubeAPI(email=request.data["email"])
+            youtube_api = YouTubeAPI(email=request.data["email"])
             # return Response(data=request.data, status=status.HTTP_200_OK)
 
             # upload video
-            # video_file = os.path.join("django", "BACKGROUND.mp4")
-            # title = "Test Video Upload"
-            # description = request.data["description"]
-            # category_id = "22"
-            # tags = ["test", "video", "upload"]
-            # video_id = youtube_api.upload_video(video_file, title, description, category_id, tags)
-            # return Response(data={"video_id":f"https://www.youtube.com/watch?v={video_id}"}, status=status.HTTP_200_OK)
+            video_file = os.path.join("django", "BACKGROUND.mp4")
+            title = "Test Video Upload"
+            description = request.data["description"]
+            category_id = "22"
+            tags = ["test", "video", "upload"]
+            video_id = youtube_api.upload_video(video_file, title, description, category_id, tags)
+            return Response(data={"video_id":f"https://www.youtube.com/watch?v={video_id}"}, status=status.HTTP_200_OK)
 
             # get comments by video id
             # comments = youtube_api.get_video_comments(request.data["video_id"], max_results=50)
@@ -90,42 +130,6 @@ class YoutubeDLViewSet(viewsets.ViewSet):
             return Response(data=response, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    @action(methods=['post'], detail=False)
-    def scrape(self, request):
-        try:
-            ydl = YoutubeDLHelper()
-            response = []
-
-            urls = ydl.scrape_artist(request.data["url"])
-            for i, url in enumerate(urls):
-                ydl.extract_info(url)
-
-                if ydl.type == 'track':
-                    serializer = TrackSerializer(data=ydl.info[0], ydl=ydl)
-                else:
-                    serializer = PlaylistSerializer(data=ydl.info[0], ydl=ydl)
-
-                if serializer.is_valid():
-                    with transaction.atomic():
-                        instance = serializer.save()
-                    response.append({
-                        'info': ydl.info,
-                        'path': ydl.path,
-                        'url': ydl.url,
-                        'type': ydl.type,
-                        'platform': ydl.platform,
-                        'id': getattr(instance, 'id', None),
-                        'upload_id': getattr(instance, 'upload_id', None),
-                    })
-
-                # only sleep if not first or last
-                if 0 < i < len(urls) - 1:
-                    time.sleep(random.uniform(5, 10))
-
-            return Response(response, status=status.HTTP_200_OK)
-        except Exception:
-            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(methods=['post'], detail=False)
     def save_track(self, request):

@@ -186,10 +186,8 @@ class YoutubeDLHelper:
                     urls.append(entry['permalink_url'])
                 urls = list(set(urls))
                 if i > 0 and i < len(endpoints) - 1:
-                    sleep_time = random.uniform(5, 10)
-                    print(f"{sleep_time:.1f}")
-                    time.sleep(sleep_time)
+                    time.sleep(random.uniform(5, 10))
             except Exception as e:
                 print(f"Failed to get {endpoint} for user {user_id}: {e}")
-            return urls
+        return urls
                 

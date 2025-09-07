@@ -10,7 +10,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./postgres:/docker-entrypoint-initdb.d
-      
+
   n8n:
     image: n8nio/n8n:latest
     container_name: n8n
@@ -30,8 +30,42 @@ services:
     restart: unless-stopped
     depends_on:
       - postgres
+      - redis
     ports:
       - "5000:5000"
+    volumes:
+      - ./django:/app
+    env_file:
+      - .env
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  celery-worker:
+    build: ./django
+    container_name: celery-worker
+    restart: unless-stopped
+    command: celery -A core worker -l info
+    depends_on:
+      - redis
+      - postgres
+    volumes:
+      - ./django:/app
+    env_file:
+      - .env
+
+  celery-beat:
+    build: ./django
+    container_name: celery-beat
+    restart: unless-stopped
+    command: celery -A core beat -l info
+    depends_on:
+      - redis
+      - postgres
     volumes:
       - ./django:/app
     env_file:
