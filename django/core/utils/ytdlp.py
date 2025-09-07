@@ -60,7 +60,7 @@ class YoutubeDLHelper:
                     info.append(json.loads(strip))
             errors = process.stderr.read()
             if errors:
-                print(f"Error extracting metadata: {errors}")
+                raise RuntimeError(f"Error extracting metadata: {errors} for URL: {url}")
 
             output, errors = process.communicate()
             process.stdout.close()

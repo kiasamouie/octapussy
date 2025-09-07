@@ -34,6 +34,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 # Application definition
 
 INSTALLED_APPS = [
+    'mix',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

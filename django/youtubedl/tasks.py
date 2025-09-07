@@ -7,7 +7,7 @@ from core.utils.ytdlp import YoutubeDLHelper
 from .serializers import TrackSerializer, PlaylistSerializer
 
 @shared_task(bind=True, base=TrackedTask)
-def scrape_artist_task(self, url, **kwargs):
+def scrape_artist_task(self, url: str, **kwargs: dict) -> dict:
     ydl = YoutubeDLHelper()
     response = {"results": {"success": [], "error": []}}
     urls = ydl.scrape_artist(url)
@@ -53,6 +53,5 @@ def scrape_artist_task(self, url, **kwargs):
         if 0 < i < len(urls) - 1:
             time.sleep(random.uniform(5, 10))
 
-    
     return response
 
