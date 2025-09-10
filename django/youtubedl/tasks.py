@@ -7,10 +7,10 @@ from core.utils.ytdlp import YoutubeDLHelper
 from .serializers import TrackSerializer, PlaylistSerializer
 
 @shared_task(bind=True, base=TrackedTask)
-def scrape_artist_task(self, url: str, **kwargs: dict) -> dict:
-    ydl = YoutubeDLHelper()
+def scrape_task(self, url: str, **kwargs: dict) -> dict:
     response = {"results": {"success": [], "error": []}}
-    urls = ydl.scrape_artist(url)
+    ydl = YoutubeDLHelper(url)
+    urls =  ydl.scrape_artist(url) if ydl.type == "artist" else [url]
     for i, u in enumerate(urls):
         try:
             ydl.extract_info(u)

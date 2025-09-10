@@ -10,7 +10,7 @@ class Mix(models.Model):
         FAILED = "failed", "Failed"
         UPLOADED = "uploaded", "Uploaded"
 
-    name = models.CharField(max_length=255, help_text="Friendly name for this mix")
+    title = models.CharField(max_length=255, help_text="Friendly name for this mix")
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(default=timezone.now)
 
@@ -29,4 +29,4 @@ class Mix(models.Model):
     uploaded_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"Mix {self.id} - {self.name or 'Untitled'} [{self.status}]"
+        return f"Mix {self.id} - {self.title or 'Untitled'} [{self.status}]"

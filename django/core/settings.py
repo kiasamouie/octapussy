@@ -34,7 +34,6 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 # Application definition
 
 INSTALLED_APPS = [
-    'mix',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -58,7 +57,7 @@ INSTALLED_APPS = [
     # created apps
     'core.apps.CoreConfig',
     "youtubedl",
-    "playlist",
+    'mix',
 ]
 
 MIDDLEWARE = [
@@ -108,11 +107,10 @@ SOCIALACCOUNT_PROVIDERS = {
 
 
 ROOT_URLCONF = "core.urls"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

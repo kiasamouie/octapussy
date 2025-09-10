@@ -18,7 +18,7 @@ from django.db import transaction
 from core.utils.ytdlp import YoutubeDLHelper
 from core.utils.socials.youtube import YouTubeAPI
 from core.models import TaskJob
-from .tasks import scrape_artist_task
+from .tasks import scrape_task
 
 class YoutubeDLViewSet(viewsets.ViewSet):
     permission_classes = (AllowAny,)
@@ -55,11 +55,11 @@ class YoutubeDLViewSet(viewsets.ViewSet):
             jobs = []
             for url in urls:
                 job = TaskJob.objects.create(
-                    name="scrape_artist_task",
+                    name="scrape_task",
                     params={"url": url},
                     status=TaskJob.Status.PENDING,
                 )
-                async_res = scrape_artist_task.delay(url=url, job_id=str(job.id))
+                async_res = scrape_task.delay(url=url, job_id=str(job.id))
                 job.task_id = async_res.id
                 job.save(update_fields=["task_id", "updated_at"])
 
@@ -82,17 +82,17 @@ class YoutubeDLViewSet(viewsets.ViewSet):
     def download(self, request):
         try:
             # init test
-            youtube_api = YouTubeAPI(email=request.data["email"])
-            # return Response(data=request.data, status=status.HTTP_200_OK)
+            # youtube_api = YouTubeAPI(email=request.data["email"])
+            # # return Response(data=request.data, status=status.HTTP_200_OK)
 
-            # upload video
-            video_file = os.path.join("django", "BACKGROUND.mp4")
-            title = "Test Video Upload"
-            description = request.data["description"]
-            category_id = "22"
-            tags = ["test", "video", "upload"]
-            video_id = youtube_api.upload_video(video_file, title, description, category_id, tags)
-            return Response(data={"video_id":f"https://www.youtube.com/watch?v={video_id}"}, status=status.HTTP_200_OK)
+            # # upload video
+            # video_file = os.path.join("django", "BACKGROUND.mp4")
+            # title = "Test Video Upload"
+            # description = request.data["description"]
+            # category_id = "22"
+            # tags = ["test", "video", "upload"]
+            # video_id = youtube_api.upload_video(video_file, title, description, category_id, tags)
+            # return Response(data={"video_id":f"https://www.youtube.com/watch?v={video_id}"}, status=status.HTTP_200_OK)
 
             # get comments by video id
             # comments = youtube_api.get_video_comments(request.data["video_id"], max_results=50)

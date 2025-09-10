@@ -1,0 +1,38 @@
+{% extends "admin/base_site.html" %}
+
+{% block footer %}
+  {{ block.super }}
+
+  <!-- Toastr CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+  <!-- jQuery (CDN, fallback if django.jQuery not ready) -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+  <script>
+    // Ensure $ is always defined BEFORE loading Toastr
+    (function() {
+      var $ = (typeof django !== "undefined" && django.jQuery) ? django.jQuery : window.jQuery;
+      window.$ = $;
+      window.jQuery = $;
+    })();
+  </script>
+
+  <!-- Toastr JS (loads after jQuery is set) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+  <script>
+    (function($) {
+      $(function() {
+        toastr.options = {
+          closeButton: true,
+          progressBar: true,
+          positionClass: "toast-top-center",
+          timeOut: "2000",
+        };
+        // Open admin links in new tab
+        $(".results a").attr("target", "_blank");
+      });
+    })(jQuery);
+  </script>
+{% endblock %}

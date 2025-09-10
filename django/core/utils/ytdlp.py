@@ -47,10 +47,13 @@ class YoutubeDLHelper:
         platform, type = self.identify_url_components(url)
         if platform in ['youtube', 'soundcloud']:
             command = [
-                'yt-dlp',
-                '--skip-download',
-                '--print-json',
-                url
+                "yt-dlp",
+                "--skip-download",
+                "--print-json",
+                "--cookies", "/app/cookies.txt",
+                "--extractor-retries", "10",
+                "--retry-sleep", "60",
+                url,
             ]
             
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
